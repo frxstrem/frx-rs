@@ -1,0 +1,14 @@
+[package]
+name = "provide"
+
+authors.workspace = true
+edition.workspace = true
+license.workspace = true
+publish.workspace = true
+version.workspace = true
+
+[dependencies]
+typeid.workspace = true
+
+[lints]
+workspace = true

@@ -1,0 +1,34 @@
+[package]
+name = "state-machine"
+
+authors.workspace = true
+edition.workspace = true
+license.workspace = true
+publish.workspace = true
+version.workspace = true
+
+[features]
+default = ["alloc"]
+
+alloc = ["async-coroutine/alloc"]
+nightly = ["async-coroutine/nightly"]
+serde = ["dep:serde"]
+
+[dependencies]
+async-coroutine.workspace = true
+
+pin-project.workspace = true
+serde = { workspace = true, optional = true }
+
+[lints]
+workspace = true
+
+[dev-dependencies]
+async-coroutine = { path = "../../crates/async-coroutine", features = [
+  "futures-core",
+] }
+
+futures = "0.3.31"
+serde = { version = "1.0.219", features = ["derive"] }
+serde_json = "1.0.143"
+tokio = { version = "1.47.1", features = ["time", "rt", "macros", "test-util"] }

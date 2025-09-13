@@ -1,0 +1,62 @@
+[workspace]
+members = [
+  "crates/async-coroutine",
+  "crates/drop-guard",
+  "crates/manual-ref",
+  "crates/provide",
+  "crates/scoped-cell",
+  "crates/sorted-slice",
+  "crates/specialize",
+  "crates/state-machine",
+  "crates/type-eq",
+  "macros/boxed",
+  "macros/cfg-const",
+  "macros/export-macro",
+  "macros/macro-helpers",
+  "macros/specialize-macro",
+]
+resolver = "2"
+
+[workspace.package]
+authors = ["Freyja <frx.apps@gmail.com>"]
+edition = "2024"
+license = "Apache-2.0"
+publish = false
+version = "0.0.2"
+
+[workspace.dependencies]
+async-coroutine = { path = "crates/async-coroutine", default-features = false }
+comparator = { path = "crates/comparator", default-features = false }
+drop-guard = { path = "crates/drop-guard", default-features = false }
+manual-ref = { path = "crates/manual-ref", default-features = false }
+specialize = { path = "crates/specialize", default-features = false }
+
+boxed = { path = "macros/boxed", default-features = false }
+cfg-const = { path = "macros/cfg-const", default-features = false }
+export-macro = { path = "macros/export-macro", default-features = false }
+macro-helpers = { path = "macros/macro-helpers", default-features = false }
+specialize-macro = { path = "macros/specialize-macro", default-features = false }
+
+futures = { version = "0.3.31", default-features = false }
+futures-core = { version = "0.3.31", default-features = false }
+pin-project = "1.1.10"
+serde = { version = "1.0.219", default-features = false }
+typeid = "1.0.3"
+
+proc-macro-crate = "3.3.0"
+proc-macro2 = "1.0.87"
+quote = "1.0.37"
+syn = { version = "2.0.79", default-features = false }
+
+[workspace.lints.clippy]
+missing_errors_doc = "warn"
+missing_panics_doc = "warn"
+missing_safety_doc = "warn"
+std_instead_of_core = "warn"
+type_complexity = "allow"
+undocumented_unsafe_blocks = "warn"
+unnecessary_safety_doc = "warn"
+
+[workspace.lints.rust]
+async_fn_in_trait = "allow"
+missing_docs = "warn"

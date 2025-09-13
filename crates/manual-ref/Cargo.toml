@@ -1,0 +1,16 @@
+[package]
+name = "manual-ref"
+
+authors.workspace = true
+edition.workspace = true
+license.workspace = true
+publish.workspace = true
+version.workspace = true
+
+[features]
+default = []
+
+[dependencies]
+
+[lints]
+workspace = true
