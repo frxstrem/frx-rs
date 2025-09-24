@@ -8,12 +8,11 @@ publish.workspace = true
 version.workspace = true
 
 [dependencies]
-serde = { workspace = true, features = ["alloc"] }
+serde = { workspace = true, features = ["alloc", "derive"] }
 serde_json = { workspace = true, features = ["alloc"] }
 
 [dev-dependencies]
-serde = { workspace = true, features = ["alloc", "derive"] }
-serde_json = { workspace = true, features = ["alloc"] }
+paste = "1.0.15"
 
 [lints]
 workspace = true
