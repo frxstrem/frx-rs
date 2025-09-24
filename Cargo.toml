@@ -2,6 +2,7 @@
 members = [
   "crates/async-coroutine",
   "crates/drop-guard",
+  "crates/jsonrpc",
   "crates/manual-ref",
   "crates/provide",
   "crates/scoped-cell",
@@ -36,6 +37,7 @@ futures = { version = "0.3.31", default-features = false }
 futures-core = { version = "0.3.31", default-features = false }
 pin-project = "1.1.10"
 serde = { version = "1.0.219", default-features = false }
+serde_json = { version = "1.0.145", default-features = false }
 typeid = "1.0.3"
 
 proc-macro-crate = "3.3.0"
