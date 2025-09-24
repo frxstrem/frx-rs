@@ -28,13 +28,8 @@ version = "0.0.2"
 async-coroutine = { path = "crates/async-coroutine", default-features = false }
 comparator = { path = "crates/comparator", default-features = false }
 drop-guard = { path = "crates/drop-guard", default-features = false }
-manual-ref = { path = "crates/manual-ref", default-features = false }
-specialize = { path = "crates/specialize", default-features = false }
-
-boxed = { path = "macros/boxed", default-features = false }
-cfg-const = { path = "macros/cfg-const", default-features = false }
-export-macro = { path = "macros/export-macro", default-features = false }
 macro-helpers = { path = "macros/macro-helpers", default-features = false }
+manual-ref = { path = "crates/manual-ref", default-features = false }
 specialize-macro = { path = "macros/specialize-macro", default-features = false }
 
 futures = { version = "0.3.31", default-features = false }
