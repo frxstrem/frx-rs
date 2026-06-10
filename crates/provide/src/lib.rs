@@ -1,8 +1,12 @@
 //! Generic member access.
 
-#![no_std]
+#![cfg_attr(not(feature = "std"), no_std)]
+
+#[cfg(feature = "alloc")]
+extern crate alloc;
 
 mod request;
+mod std_types;
 
 pub use self::request::Request;
 

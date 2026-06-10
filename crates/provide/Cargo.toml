@@ -7,6 +7,12 @@ license.workspace = true
 publish.workspace = true
 version.workspace = true
 
+[features]
+default = ["std"]
+
+alloc = []
+std = ["alloc"]
+
 [dependencies]
 typeid.workspace = true
 
