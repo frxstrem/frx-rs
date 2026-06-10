@@ -10,11 +10,9 @@ pub struct Request<'a> {
 
 impl<'a> Request<'a> {
     pub(crate) fn new<S: Slot<'a> + 'a>(slot: &mut S) -> &mut Self {
-        let slot: &mut (dyn 'a + Slot) = slot;
-
-        // SAFETY: `Request` is `repr(transparent)` and `slot` is a valid
-        // reference to a `dyn Slot`.
-        unsafe { &mut *(ptr::from_mut(slot) as *mut Self) }
+        // SAFETY: `Request<'a>` is `repr(transparent)` over `dyn 'a + Slot<'a>`,
+        // so a pointer to one is a valid pointer to the other.
+        unsafe { &mut *(ptr::from_mut::<dyn 'a + Slot>(slot) as *mut Self) }
     }
 
     /// Check if the request has already been satisfied.
@@ -55,14 +53,14 @@ impl<'a> Request<'a> {
 
     /// Provide a reference to satisfy the request.
     ///
-    /// Unlike `provide_ref_with`, this function will only evaluate the
+    /// Unlike `provide_ref`, this function will only lazily evaluate the
     /// provided closure if the request would be satisfied by a reference to `T`.
     ///
     /// # Errors
     ///
     /// If the request would be satisfied by a value of `T`, but the closure
     /// returns an error, then the error will be returned and the request
-    /// will remain unsatisfied..
+    /// will remain unsatisfied.
     pub fn try_provide_ref_with<T: 'static, E>(
         &mut self,
         ref_fn: impl FnOnce() -> Result<&'a T, E>,
@@ -92,7 +90,7 @@ impl<'a> Request<'a> {
 
     /// Provide a value to satisfy the request.
     ///
-    /// Unlike `provide_value_with`, this function will only evaluate the
+    /// Unlike `provide_value`, this function will only lazily evaluate the
     /// provided closure if the request would be satisfied by a value of `T`.
     ///
     /// # Errors
@@ -115,13 +113,13 @@ impl<'a> Request<'a> {
 
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub(crate) enum SlotType {
-    /// `Option<&'a T>`
+    /// `RefSlot<'a, T>`
     Ref,
-    /// `Option<T>`
+    /// `ValueSlot<T>`
     Value,
 }
 
-/// A type-erased `Option<T>` or `Option<&'a T>`, where `T: 'static`.
+/// A type-erased `RefSlot<'a, T>` or `ValueSlot<T>`, where `T: 'static`.
 ///
 /// # Safety
 ///
@@ -135,28 +133,40 @@ pub(crate) unsafe trait Slot<'a> {
 impl<'a> dyn 'a + Slot<'a> {
     fn as_ref_slot<T: 'static>(&self) -> Option<&RefSlot<'a, T>> {
         (self.slot_type() == SlotType::Ref && self.value_type() == TypeId::of::<T>())
+            // SAFETY: The `Slot` safety contract guarantees `slot_type()` and
+            // `value_type()` accurately reflect the concrete type of `self`.
+            // The condition above confirms `self` is a `RefSlot<'a, T>`.
             .then(|| unsafe { &*(ptr::from_ref(self) as *const RefSlot<'a, T>) })
     }
 
     fn as_ref_slot_mut<T: 'static>(&mut self) -> Option<&mut RefSlot<'a, T>> {
         (self.slot_type() == SlotType::Ref && self.value_type() == TypeId::of::<T>())
+            // SAFETY: The `Slot` safety contract guarantees `slot_type()` and
+            // `value_type()` accurately reflect the concrete type of `self`.
+            // The condition above confirms `self` is a `RefSlot<'a, T>`.
             .then(|| unsafe { &mut *(ptr::from_mut(self) as *mut RefSlot<'a, T>) })
     }
 
     fn as_value_slot<T: 'static>(&self) -> Option<&ValueSlot<T>> {
         (self.slot_type() == SlotType::Value && self.value_type() == TypeId::of::<T>())
+            // SAFETY: The `Slot` safety contract guarantees `slot_type()` and
+            // `value_type()` accurately reflect the concrete type of `self`.
+            // The condition above confirms `self` is a `ValueSlot<T>`.
             .then(|| unsafe { &*(ptr::from_ref(self) as *const ValueSlot<T>) })
     }
 
     fn as_value_slot_mut<T: 'static>(&mut self) -> Option<&mut ValueSlot<T>> {
         (self.slot_type() == SlotType::Value && self.value_type() == TypeId::of::<T>())
+            // SAFETY: The `Slot` safety contract guarantees `slot_type()` and
+            // `value_type()` accurately reflect the concrete type of `self`.
+            // The condition above confirms `self` is a `ValueSlot<T>`.
             .then(|| unsafe { &mut *(ptr::from_mut(self) as *mut ValueSlot<T>) })
     }
 }
 
-pub(crate) struct RefSlot<'a, T: 'static>(Option<&'a T>);
+pub(crate) struct RefSlot<'a, T: ?Sized + 'static>(Option<&'a T>);
 
-impl<'a, T: 'static> RefSlot<'a, T> {
+impl<'a, T: ?Sized + 'static> RefSlot<'a, T> {
     pub(crate) fn new() -> Self {
         Self(None)
     }
@@ -166,7 +176,9 @@ impl<'a, T: 'static> RefSlot<'a, T> {
     }
 }
 
-unsafe impl<'a, T: 'static> Slot<'a> for RefSlot<'a, T> {
+// SAFETY: `slot_type()` returns `SlotType::Ref` and `value_type()` returns
+// `TypeId::of::<T>()`, which accurately reflect the concrete type `RefSlot<'a, T>`.
+unsafe impl<'a, T: ?Sized + 'static> Slot<'a> for RefSlot<'a, T> {
     fn slot_type(&self) -> SlotType {
         SlotType::Ref
     }
@@ -192,6 +204,8 @@ impl<T: 'static> ValueSlot<T> {
     }
 }
 
+// SAFETY: `slot_type()` returns `SlotType::Value` and `value_type()` returns
+// `TypeId::of::<T>()`, which accurately reflect the concrete type `ValueSlot<T>`.
 unsafe impl<T: 'static> Slot<'_> for ValueSlot<T> {
     fn slot_type(&self) -> SlotType {
         SlotType::Value

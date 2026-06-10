@@ -15,7 +15,7 @@ pub trait Provide {
 /// Get a generic member from `src`.
 ///
 /// See [`Provide`] and [`Request`] for details.
-pub fn provide_ref<T: 'static>(src: &(impl Provide + ?Sized)) -> Option<&T> {
+pub fn provide_ref<T: ?Sized + 'static>(src: &(impl Provide + ?Sized)) -> Option<&T> {
     let mut slot = request::RefSlot::new();
     let request = Request::new(&mut slot);
 
