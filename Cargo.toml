@@ -36,6 +36,7 @@ futures = { version = "0.3.31", default-features = false }
 futures-core = { version = "0.3.31", default-features = false }
 pin-project = "1.1.10"
 serde = { version = "1.0.219", default-features = false }
+trybuild = "1.0.115"
 typeid = "1.0.3"
 
 proc-macro-crate = "3.3.0"

@@ -1,0 +1,19 @@
+error[E0597]: `foo` does not live long enough
+  --> tests/ui/fail/extending_lifetime.rs:15:47
+   |
+14 |     let foo = Foo { x: 1 };
+   |         --- binding `foo` declared here
+15 |     let x: Option<&'static i32> = provide_ref(&foo);
+   |            --------------------               ^^^^ borrowed value does not live long enough
+   |            |
+   |            type annotation requires that `foo` is borrowed for `'static`
+16 | }
+   | - `foo` dropped here while still borrowed
+
+warning: unused variable: `x`
+  --> tests/ui/fail/extending_lifetime.rs:15:9
+   |
+15 |     let x: Option<&'static i32> = provide_ref(&foo);
+   |         ^ help: if this is intentional, prefix it with an underscore: `_x`
+   |
+   = note: `#[warn(unused_variables)]` (part of `#[warn(unused)]`) on by default
