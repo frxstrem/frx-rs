@@ -116,3 +116,37 @@ impl<T> MatchOnType<T, T> {
         })
     }
 }
+
+impl<'a, T: ?Sized, R> MatchOnType<&'a T, R> {
+    /// Define a branch for `&T == &U`.
+    pub fn when_ref<U>(self, f: impl FnOnce(&'a U) -> R) -> MatchOnType<&'a T, R>
+    where
+        T: 'static,
+        U: ?Sized + 'static,
+    {
+        self.map_inner(|t| {
+            if let Some(teq) = type_eq::<T, U>() {
+                Ok(f(teq.to_ref().transmute(t)))
+            } else {
+                Err(t)
+            }
+        })
+    }
+}
+
+impl<'a, T: ?Sized, R> MatchOnType<&'a mut T, R> {
+    /// Define a branch for `&mut T == &mut U`.
+    pub fn when_mut<U>(self, f: impl FnOnce(&'a mut U) -> R) -> MatchOnType<&'a mut T, R>
+    where
+        T: 'static,
+        U: ?Sized + 'static,
+    {
+        self.map_inner(|t| {
+            if let Some(teq) = type_eq::<T, U>() {
+                Ok(f(teq.to_mut().transmute(t)))
+            } else {
+                Err(t)
+            }
+        })
+    }
+}

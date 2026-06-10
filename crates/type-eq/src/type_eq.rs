@@ -4,7 +4,7 @@ use core::{marker::PhantomData, mem::MaybeUninit, ops::Deref, ptr::NonNull};
 
 /// Compare two types, returning a [`TypeEq`] if they are equal.
 #[cfg(not(feature = "nightly"))]
-pub fn type_eq<T: 'static, U: 'static>() -> Option<TypeEq<T, U>> {
+pub fn type_eq<T: ?Sized + 'static, U: ?Sized + 'static>() -> Option<TypeEq<T, U>> {
     use core::any::TypeId;
 
     if TypeId::of::<T>() == TypeId::of::<U>() {
@@ -17,20 +17,20 @@ pub fn type_eq<T: 'static, U: 'static>() -> Option<TypeEq<T, U>> {
 
 /// Compare two types, returning a [`TypeEq`] if they are equal.
 #[cfg(feature = "nightly")]
-pub const fn type_eq<T: 'static, U: 'static>() -> Option<TypeEq<T, U>> {
-    const fn is_type_eq<T: 'static, U: 'static>() -> bool {
-        trait Is<U: ?Sized> {
-            const IS_SAME: bool;
-        }
+pub const fn type_eq<T: ?Sized + 'static, U: ?Sized + 'static>() -> Option<TypeEq<T, U>> {
+    trait Is<U: ?Sized> {
+        const IS_SAME: bool;
+    }
 
-        impl<T: ?Sized, U: ?Sized> Is<U> for T {
-            default const IS_SAME: bool = false;
-        }
+    impl<T: ?Sized, U: ?Sized> Is<U> for T {
+        default const IS_SAME: bool = false;
+    }
 
-        impl<T: ?Sized> Is<T> for T {
-            const IS_SAME: bool = true;
-        }
+    impl<T: ?Sized> Is<T> for T {
+        const IS_SAME: bool = true;
+    }
 
+    const fn is_type_eq<T: ?Sized + 'static, U: ?Sized + 'static>() -> bool {
         <T as Is<U>>::IS_SAME
     }
 
